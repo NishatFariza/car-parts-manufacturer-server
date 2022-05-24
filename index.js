@@ -21,16 +21,25 @@ async function run(){
    try{
     await client.connect()
     const productCollection = client.db("facmaster-factory").collection("product");
+    const reviewCollection = client.db("facmaster-factory").collection("review");
     //  console.log('database connect');
 
     
-      //6 product load
+      //all product load
       app.get('/products', async(req, res) =>{
         const query ={}
         const cursor = productCollection.find(query);
         const products = await cursor.toArray();
         // console.log(cars);
         res.send(products)
+    })
+      //all product load
+      app.get('/reviews', async(req, res) =>{
+        const query ={}
+        const cursor = reviewCollection.find(query);
+        const reviews = await cursor.toArray();
+        // console.log(cars);
+        res.send(reviews)
     })
 
 
