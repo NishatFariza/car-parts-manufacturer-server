@@ -42,6 +42,7 @@ async function run(){
     const productCollection = client.db("facmaster-factory").collection("product");
     const reviewCollection = client.db("facmaster-factory").collection("review");
     const userCollection = client.db("facmaster-factory").collection("user");
+    const oderCollection = client.db("facmaster-factory").collection("order");
     //  console.log('database connect');
 
     
@@ -88,6 +89,37 @@ async function run(){
     const token = jwt.sign({ email: email }, process.env.SECRET_KEY, { expiresIn: '60d' });
     res.send({ result, token })
 })
+
+
+        // post orders 
+        app.post('/orders', async (req, res) => {
+          const orderInfo = req.body;
+          const result = await orderCollection.insertOne(orderInfo)
+          res.send(result)
+      })
+
+      // get all orders
+      app.get('/orders', verifyJwt, async (req, res) => {
+          const query = {};
+          const result = await orderCollection.find(query).toArray()
+          res.send(result)
+      })
+
+      // get my order
+      app.get('/orders/:email', verifyJwt, async (req, res) => {
+          const email = req.params.email;
+          const filter = { customerEmail: email };
+          const result = await orderCollection.find(filter).toArray()
+          res.send(result)
+      })
+
+      // delete order
+      app.delete('/order/:id', verifyJwt, async (req, res) => {
+          const id = req.params.id;
+          const filter = { _id: ObjectId(id) };
+          const result = await orderCollection.deleteOne(filter);
+          res.send(result)
+      })
 
 
    }
