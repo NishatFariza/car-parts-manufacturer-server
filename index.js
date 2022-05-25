@@ -33,7 +33,7 @@ async function run(){
         // console.log(cars);
         res.send(products)
     })
-      //all product load
+      //all review load
       app.get('/reviews', async(req, res) =>{
         const query ={}
         const cursor = reviewCollection.find(query);
@@ -41,6 +41,19 @@ async function run(){
         // console.log(cars);
         res.send(reviews)
     })
+
+    // post product
+    app.post('/product', verifyJwt, async (req, res) => {
+      const product = req.body;
+      const result = await productCollection.insertOne(product)
+      if (result.insertedId) {
+          res.send({success: true, message:`Successfuly Added ${product.name}`})
+      }
+      else{
+          res.send({success: false, message:`Something is Wrong`})
+      }
+
+  })
 
 
    }
