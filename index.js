@@ -42,7 +42,7 @@ async function run(){
     const productCollection = client.db("facmaster-factory").collection("product");
     const reviewCollection = client.db("facmaster-factory").collection("review");
     const userCollection = client.db("facmaster-factory").collection("user");
-    const oderCollection = client.db("facmaster-factory").collection("order");
+    const orderCollection = client.db("facmaster-factory").collection("order");
     //  console.log('database connect');
 
     
@@ -93,8 +93,8 @@ async function run(){
 
         // post orders 
         app.post('/orders', async (req, res) => {
-          const orderInfo = req.body;
-          const result = await orderCollection.insertOne(orderInfo)
+          const order = req.body;
+          const result = await orderCollection.insertOne(order)
           res.send(result)
       })
 
@@ -120,6 +120,18 @@ async function run(){
           const result = await orderCollection.deleteOne(filter);
           res.send(result)
       })
+
+
+       // make admin api
+       app.put("/user/makeAdmin/:email", verifyJwt, verfyAdmin,async (req, res) => {
+        const email = req.params.email;
+        const filter = { email: email };
+        const updateDoc = {
+            $set: { roll: 'admin' }
+        };
+        const result = await UserCollection.updateOne(filter, updateDoc);
+        res.send(result)
+    })
 
 
    }
