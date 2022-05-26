@@ -76,20 +76,41 @@ async function run(){
 
   })
 
-   // create user
-   app.put('/user/:email', async (req, res) => {
-    const user = req.body;
-    const email = req.params.email;
-    const filter = { email: email }
-    const options = { upsert: true };
-    const updatedDoc = {
-        $set: user
-    }
-    const result = await userCollection.updateOne(filter, updatedDoc, options);
-    const token = jwt.sign({ email: email }, process.env.SECRET_KEY, { expiresIn: '60d' });
-    res.send({ result, token })
-})
+            // create user
+            app.put('/user/:email', async (req, res) => {
+                const user = req.body;
+                const email = req.params.email;
+                const filter = { email: email }
+                const options = { upsert: true };
+                const updatedDoc = {
+                    $set: user
+                }
+                const result = await userCollection.updateOne(filter, updatedDoc, options);
+                const token = jwt.sign({ email: email }, process.env.SECRET_KEY, { expiresIn: '60d' });
+                res.send({ result, token })
+            })
+  
 
+            // get all users
+            app.get('/users', verifyJwt, async (req, res) => {
+                const query = {};
+                const result = await userCollection.find(query).toArray();
+                res.send(result)
+            })
+
+         
+         //verify Admin
+         async function verifyAdmin  (req, res, next) {
+            const requestEmail = req.decoded.email;
+            const request = await userCollection.findOne({email: requestEmail})
+            if (request.roll === "admin") {
+                next()
+            }
+            else{
+                res.status(403).send({ message: 'forbidden' })
+            }
+        }
+            
 
         // post orders 
         app.post('/orders', async (req, res) => {
@@ -122,16 +143,37 @@ async function run(){
       })
 
 
-       // make admin api
-       app.put("/user/makeAdmin/:email", verifyJwt, verfyAdmin,async (req, res) => {
-        const email = req.params.email;
-        const filter = { email: email };
-        const updateDoc = {
-            $set: { roll: 'admin' }
-        };
-        const result = await UserCollection.updateOne(filter, updateDoc);
-        res.send(result)
-    })
+       
+        // get admin 
+        app.get('/admin/:email', verifyJwt, async(req, res)=>{
+            const userEmail = req.params.email;
+            const user = await userCollection.findOne({email:userEmail})
+            const isAdmin = user.roll === 'admin';
+            res.send({admin : isAdmin})
+        })
+
+        // make admin
+        app.put("/user/makeAdmin/:email", verifyJwt, verifyAdmin,async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const updateDoc = {
+                $set: { roll: 'admin' }
+            };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result)
+        })
+        // delete admin
+        app.put("/user/deleteAdmin/:email", verifyJwt, verifyAdmin,async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: { roll: '' }
+            };
+            const result = await userCollection.updateOne(filter, updateDoc,options);
+            res.send(result)
+        })
+
 
 
    }
