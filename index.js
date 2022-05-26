@@ -51,7 +51,7 @@ async function run(){
         const query ={}
         const cursor = productCollection.find(query);
         const products = await cursor.toArray();
-        // console.log(cars);
+        
         res.send(products)
     })
       //all review load
@@ -59,7 +59,7 @@ async function run(){
         const query ={}
         const cursor = reviewCollection.find(query);
         const reviews = await cursor.toArray();
-        // console.log(cars);
+        
         res.send(reviews)
     })
 
@@ -171,6 +171,24 @@ async function run(){
                 $set: { roll: '' }
             };
             const result = await userCollection.updateOne(filter, updateDoc,options);
+            res.send(result)
+        })
+
+
+        // delete product
+        app.delete('/product/:id', verifyJwt, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const result = await productCollection.deleteOne(filter);
+            res.send(result)
+        })
+
+        //purchase api
+        // get single product 
+        app.get('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const result = await productCollection.findOne(filter)
             res.send(result)
         })
 
