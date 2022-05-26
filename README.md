@@ -10,4 +10,4 @@
 - JWT Token
 - Stripe Payment System
 - nodemon
-- Dotenvgit
+- Dotenv
