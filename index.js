@@ -43,6 +43,7 @@ async function run(){
     const reviewCollection = client.db("facmaster-factory").collection("review");
     const userCollection = client.db("facmaster-factory").collection("user");
     const orderCollection = client.db("facmaster-factory").collection("order");
+    const userProfileCollection = client.db("facmaster-factory").collection("userProfile");
     //  console.log('database connect');
 
     
@@ -191,6 +192,30 @@ async function run(){
             const result = await productCollection.findOne(filter)
             res.send(result)
         })
+
+
+        // update profile
+        app.put('/profile/:email', verifyJwt, async (req, res) => {
+            const userProfile = req.body;
+            const email = req.params.email;
+            // console.log(userProfile, email);
+            const filter = { email: email }
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: userProfile
+            }
+            const result = await userProfileCollection.updateOne(filter, updatedDoc, options);
+            res.send(result)
+        })
+        // get profile
+        app.get('/profile/:email',verifyJwt, async (req, res) => {
+            const email = req.params.email;
+            console.log(email);
+            const filter = { email: email };
+            const result = await userProfileCollection.findOne(filter)
+            res.send(result)
+        })
+
 
 
 
