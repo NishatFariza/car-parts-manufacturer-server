@@ -262,7 +262,7 @@ async function run(){
         // get profile
         app.get('/profile/:email',verifyJwt, async (req, res) => {
             const email = req.params.email;
-            console.log(email);
+            // console.log(email);
             const filter = { email: email };
             const result = await userProfileCollection.findOne(filter)
             res.send(result)
