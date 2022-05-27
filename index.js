@@ -143,6 +143,14 @@ async function run(){
           res.send(result)
       })
 
+       // get single order 
+       app.get('/order/:id', verifyJwt, async (req, res) => {
+        const id = req.params.id;
+        const filter = { _id: ObjectId(id) };
+        const result = await orderCollection.findOne(filter)
+        res.send(result)
+    })
+
       // get my order
       app.get('/orders/:email', verifyJwt, async (req, res) => {
           const email = req.params.email;
@@ -150,6 +158,33 @@ async function run(){
           const result = await orderCollection.find(filter).toArray()
           res.send(result)
       })
+
+       // make payment order
+       app.patch('/order/:id', verifyJwt, async(req, res)=>{
+        const id = req.params.id;
+        const payment = req.body;
+        const filter = { _id: ObjectId(id) };
+        const updatedDoc = {
+            $set: {
+                paid : true,
+                transectionId : payment.transectionId
+            }
+        }
+        const result = await orderCollection.updateOne(filter, updatedDoc);
+        res.send(result)
+    })
+
+    // ship order 
+    app.put("/orderShip/:id", verifyJwt, verifyAdmin, async (req, res) => {
+        const id = req.params.id;
+        const filter = { _id: ObjectId(id) };
+        const updateDoc = {
+            $set: { shipped: true }
+        };
+        const result = await orderCollection.updateOne(filter, updateDoc);
+        res.send(result)
+    })
+
 
       // delete order
       app.delete('/order/:id', verifyJwt, async (req, res) => {
